@@ -10,10 +10,18 @@
 Control de hilos con wait/notify. Productor/consumidor.
 
 1. Revise el funcionamiento del programa y ejecútelo. Mientras esto ocurren, ejecute jVisualVM y revise el consumo de CPU del proceso correspondiente. A qué se debe este consumo?, cual es la clase responsable?
-2. Haga los ajustes necesarios para que la solución use más eficientemente la CPU, teniendo en cuenta que -por ahora- la producción es lenta y el consumo es rápido. Verifique con JVisualVM que el consumo de CPU se reduzca.
-3. Haga que ahora el productor produzca muy rápido, y el consumidor consuma lento. Teniendo en cuenta que el productor conoce un límite de Stock (cuantos elementos debería tener, a lo sumo en la cola), haga que dicho límite se respete. Revise el API de la colección usada como cola para ver cómo garantizar que dicho límite no se supere. Verifique que, al poner un límite pequeño para el 'stock', no haya consumo alto de CPU ni errores.
+   ![image](https://github.com/user-attachments/assets/690666d4-149b-4f1c-9b87-4f7a2cf8f7f7)
+   El consumo de CPU en el programa se debe principalmente a la implementación del Consumer en un bucle sin ninguna forma de espera, lo que resulta en un uso continuo de la CPU. Consumer está en una espera activa y haciendo comprobaciones constantemente, mientras que Producer añade un nuevo elemento a la cola cada segundo, lo que significa que deja descansar la CPU durante un segundo cada vez.
 
+3. Haga los ajustes necesarios para que la solución use más eficientemente la CPU, teniendo en cuenta que -por ahora- la producción es lenta y el consumo es rápido. Verifique con JVisualVM que el consumo de CPU se reduzca.
+   ![image](https://github.com/user-attachments/assets/391c2e46-7d58-4bfa-9ae6-0af5d2522995)
+   El consumo de CPU pasó de 12% a casi 0%. Lo redujimos usando los métodos de la clase LinkedBlockingQueue<E> put() y take(), que ya funcionan para esperar hasta que haya espacio o la lista no este vacía respectivamente, que por debajo lo que sucede es un juego con wait() y notifyAll(), donde los consumidores preguntan a la cola si está vacía y si es así se duermen, mientras que el productor cada vez que añade un elemento despierta a los consumidores para avisar que ya no está vacía la cola.
+   
+5. Haga que ahora el productor produzca muy rápido, y el consumidor consuma lento. Teniendo en cuenta que el productor conoce un límite de Stock (cuantos elementos debería tener, a lo sumo en la cola), haga que dicho límite se respete. Revise el API de la colección usada como cola para ver cómo garantizar que dicho límite no se supere. Verifique que, al poner un límite pequeño para el 'stock', no haya consumo alto de CPU ni errores.
+   ![image](https://github.com/user-attachments/assets/07e40a69-a7be-42b1-a35c-87c750fddbc7)
+   Poniendo un límite de 10 elementos, imprimimos el tamaño de la lista después de agregar un elemento, y vemos que el tamaño de la cola no supera este límite. Para que el productor produzca rápido le quitamos la esperade un segundo que tenía y para que el consumidor cosnuma más lento le pusimos una espera de un segundo.
 
+   
 ##### Parte II. – Antes de terminar la clase.
 
 Teniendo en cuenta los conceptos vistos de condición de carrera y sincronización, haga una nueva versión -más eficiente- del ejercicio anterior (el buscador de listas negras). En la versión actual, cada hilo se encarga de revisar el host en la totalidad del subconjunto de servidores que le corresponde, de manera que en conjunto se están explorando la totalidad de servidores. Teniendo esto en cuenta, haga que:
