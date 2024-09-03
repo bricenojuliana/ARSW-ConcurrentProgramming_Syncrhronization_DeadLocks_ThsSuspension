@@ -10,16 +10,23 @@
 Control de hilos con wait/notify. Productor/consumidor.
 
 1. Revise el funcionamiento del programa y ejecútelo. Mientras esto ocurren, ejecute jVisualVM y revise el consumo de CPU del proceso correspondiente. A qué se debe este consumo?, cual es la clase responsable?
-   ![image](https://github.com/user-attachments/assets/690666d4-149b-4f1c-9b87-4f7a2cf8f7f7)
+
+    ![image](https://github.com/user-attachments/assets/690666d4-149b-4f1c-9b87-4f7a2cf8f7f7)
+   
    El consumo de CPU en el programa se debe principalmente a la implementación del Consumer en un bucle sin ninguna forma de espera, lo que resulta en un uso continuo de la CPU. Consumer está en una espera activa y haciendo comprobaciones constantemente, mientras que Producer añade un nuevo elemento a la cola cada segundo, lo que significa que deja descansar la CPU durante un segundo cada vez.
 
 3. Haga los ajustes necesarios para que la solución use más eficientemente la CPU, teniendo en cuenta que -por ahora- la producción es lenta y el consumo es rápido. Verifique con JVisualVM que el consumo de CPU se reduzca.
-   ![image](https://github.com/user-attachments/assets/391c2e46-7d58-4bfa-9ae6-0af5d2522995)
+
+    ![image](https://github.com/user-attachments/assets/391c2e46-7d58-4bfa-9ae6-0af5d2522995)
+   
    El consumo de CPU pasó de 12% a casi 0%. Lo redujimos usando los métodos de la clase LinkedBlockingQueue<E> put() y take(), que ya funcionan para esperar hasta que haya espacio o la lista no este vacía respectivamente, que por debajo lo que sucede es un juego con wait() y notifyAll(), donde los consumidores preguntan a la cola si está vacía y si es así se duermen, mientras que el productor cada vez que añade un elemento despierta a los consumidores para avisar que ya no está vacía la cola.
    
 5. Haga que ahora el productor produzca muy rápido, y el consumidor consuma lento. Teniendo en cuenta que el productor conoce un límite de Stock (cuantos elementos debería tener, a lo sumo en la cola), haga que dicho límite se respete. Revise el API de la colección usada como cola para ver cómo garantizar que dicho límite no se supere. Verifique que, al poner un límite pequeño para el 'stock', no haya consumo alto de CPU ni errores.
+
    ![image](https://github.com/user-attachments/assets/07e40a69-a7be-42b1-a35c-87c750fddbc7)
+   
    Poniendo un límite de 10 elementos, imprimimos el tamaño de la lista después de agregar un elemento, y vemos que el tamaño de la cola no supera este límite. Para que el productor produzca rápido le quitamos la esperade un segundo que tenía y para que el consumidor consuma más lento le pusimos una espera de un segundo.
+
    ![image](https://github.com/user-attachments/assets/16abe024-0612-41a6-a9ae-f7c240437121)
 
 
@@ -50,6 +57,7 @@ Teniendo en cuenta el sistema de obtención y perdida de puntos de vida, el valo
 3. Ejecute la aplicación y verifique cómo funcionan las opción ‘pause and check’. Se cumple el invariante?.
 
 No se está cumpliendo el invariante ya que en cada pause and check se registran diferentes valores de vida, dando a entender que se estan ganando mas puntos de vida que los que se pierden
+
 ![image](https://github.com/user-attachments/assets/34148545-fd6b-4d80-a7e4-2f182bdf7040)
 ![image](https://github.com/user-attachments/assets/e8409881-7b0e-4c12-b4c4-f4e876534dc5)
 ![image](https://github.com/user-attachments/assets/641d45d1-81a3-4026-a9a2-5c528e5d837c)
@@ -61,6 +69,7 @@ No se está cumpliendo el invariante ya que en cada pause and check se registran
 
 ![image](https://github.com/user-attachments/assets/6df788fd-820d-4c60-af67-cb883e602ed9)
 ![image](https://github.com/user-attachments/assets/473f319e-d6ee-4aaf-9200-7115a901d973)
+
 El invariante sigue sin cumplirse correctamente, ya que no solo es necesario para los hilos. Siguen presentandose condiciones de carrera
 
 6. Identifique posibles regiones críticas en lo que respecta a la pelea de los inmortales. Implemente una estrategia de bloqueo que evite las condiciones de carrera. Recuerde que si usted requiere usar dos o más ‘locks’ simultáneamente, puede usar bloques sincronizados anidados:
