@@ -81,12 +81,57 @@ El invariante sigue sin cumplirse correctamente, ya que no solo es necesario par
 		}
 	}
 	```
+Identificamos como region critica el metodo fight, debido a que aqui se consultan y cambian los valores de dos inmortales, lo que genera condiciones de carrera
+
+![image](https://github.com/user-attachments/assets/9a71c38d-27b6-41ff-b901-e7db218c3a4b)
+
+Nuestra estrategia implementa es bloquear los dos objetos que se están modificando, el primero sería yo que soy el que estoy atacando, y el otro a quien estoy atacando.
 
 7. Tras implementar su estrategia, ponga a correr su programa, y ponga atención a si éste se llega a detener. Si es así, use los programas jps y jstack para identificar por qué el programa se detuvo.
 
+Usamos el comando jps -l para listar todos los procesos ejectuandose en JVM, aqui identificamos el número del proceso perteneciente a la simulación
+
+![image](https://github.com/user-attachments/assets/c77b67ba-601b-447f-afa6-aa85c00585ad)
+
+Una vez obtenido este id, usamos el comando jstack para obtener información sobre el estado de los hilos ejectudandose en el proceso
+
+![image](https://github.com/user-attachments/assets/4aa59a4e-e184-46d3-9f11-745d935dc4b6)
+
+En la última línea podemos ver que se encuentran en un estado de Deadlock
+
+![image](https://github.com/user-attachments/assets/32bd8400-61be-4249-9f90-31c4af1010c5)
+
+
+
 8. Plantee una estrategia para corregir el problema antes identificado (puede revisar de nuevo las páginas 206 y 207 de _Java Concurrency in Practice_).
 
+Planteamos ordenar los hilos por el indice que ocupan dentro de la lista de inmortales.
+
+![image](https://github.com/user-attachments/assets/9977bcfd-34d2-47c5-9d14-3e22e32f74d6)
+
+Con esta solución se cumple el invariante para 3 inmortales
+
+![image](https://github.com/user-attachments/assets/390edec7-f005-4fc3-a49a-be4b23fcd734)
+
+![image](https://github.com/user-attachments/assets/48ccecce-4825-4efb-9b4e-f8ed44e0eb7e)
+
+
+
 9. Una vez corregido el problema, rectifique que el programa siga funcionando de manera consistente cuando se ejecutan 100, 1000 o 10000 inmortales. Si en estos casos grandes se empieza a incumplir de nuevo el invariante, debe analizar lo realizado en el paso 4.
+
+Comprobamos en el caso de 100:
+
+![image](https://github.com/user-attachments/assets/9f1a96cf-d1c8-45d9-a13c-88d1a45b75c0)
+
+Comprobamos en el caso de 1000:
+
+![image](https://github.com/user-attachments/assets/baafbde2-a9b2-404a-b1e8-4e5f759452ec)
+
+Comprobamos en el caso de 10000:
+
+![image](https://github.com/user-attachments/assets/5d8e602b-2c59-4272-81a4-328959d43c72)
+
+(notamos que con esta cantidad de hilos se demorá mucho en empezar a ejecutar el proceso, una vez empieza el pause and check y resume funcionan correctamente)
 
 10. Un elemento molesto para la simulación es que en cierto punto de la misma hay pocos 'inmortales' vivos realizando peleas fallidas con 'inmortales' ya muertos. Es necesario ir suprimiendo los inmortales muertos de la simulación a medida que van muriendo. Para esto:
 	* Analizando el esquema de funcionamiento de la simulación, esto podría crear una condición de carrera? Implemente la funcionalidad, ejecute la simulación y observe qué problema se presenta cuando hay muchos 'inmortales' en la misma. Escriba sus conclusiones al respecto en el archivo RESPUESTAS.txt.
