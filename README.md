@@ -70,7 +70,7 @@ No se está cumpliendo el invariante ya que en cada pause and check se registran
 ![image](https://github.com/user-attachments/assets/6df788fd-820d-4c60-af67-cb883e602ed9)
 ![image](https://github.com/user-attachments/assets/473f319e-d6ee-4aaf-9200-7115a901d973)
 
-El invariante sigue sin cumplirse correctamente, ya que no solo es necesario para los hilos. Siguen presentandose condiciones de carrera
+El invariante sigue sin cumplirse correctamente, ya que no solo es necesario parar los hilos. Siguen presentandose condiciones de carrera
 
 6. Identifique posibles regiones críticas en lo que respecta a la pelea de los inmortales. Implemente una estrategia de bloqueo que evite las condiciones de carrera. Recuerde que si usted requiere usar dos o más ‘locks’ simultáneamente, puede usar bloques sincronizados anidados:
 
