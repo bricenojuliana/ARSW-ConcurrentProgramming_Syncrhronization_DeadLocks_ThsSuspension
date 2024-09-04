@@ -1,0 +1,8 @@
+**Análisis de la Simulación**
+
+
+1. **Condiciones de Carrera e incumplimiento del invariante**:
+  Analizando el problema nos dimos cuenta que no es tan sencillo simplemente eliminar a un inmortal de la lista cuando este tenga su vida en 0, esto debido a que aunque los demás hilos no pueden
+  atacarlo a él, el si puede atacar a otros ya la vida de los demás no es cero, esto haría que pueda quitarle vida a alguien más antes de desaparecer de la lista, por lo cual quedaría afectado el invariante
+  Nuestra solución tiene en cuenta este escenario, asi que además de usar una lista concurrente no bloqueante, tenemos en cuenta la condición de que para atacar yo mismo como hilo debo tener más de 0 de vida
+  y detener mi ejecución del Run porque ya no tiene sentido atacar si no tengo vida y fui eliminado.
