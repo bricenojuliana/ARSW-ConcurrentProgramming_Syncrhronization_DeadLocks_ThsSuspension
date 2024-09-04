@@ -137,7 +137,11 @@ public class ControlFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 Immortal.setDead();
-
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
                 output.setText(""); // Borra el contenido del JTextArea
                 statisticsLabel.setText("Immortals total health:");
                 immortals.clear(); // Elimina todos los inmortales de la lista
