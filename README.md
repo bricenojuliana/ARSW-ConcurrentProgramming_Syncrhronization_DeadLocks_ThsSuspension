@@ -139,6 +139,21 @@ Comprobamos en el caso de 10000:
 
 11. Para finalizar, implemente la opción STOP.
 
+Para la implementación de STOP simplemente tuvimos en cuenta reiniciar el estado de las variables a su estado original, además de detener la ejecución de los hilos con una condición booleana dentro del while de ejecución, y deshabilitamos la opción de detener la simulación si se encuentra pausada ya que los hilos están en espera
+
+Versión final:
+	-Al iniciar la simulación
+ 
+![image](https://github.com/user-attachments/assets/8eceb312-565b-47de-be09-5e821730b89c)
+
+	-Al darle a START:
+ 
+ ![image](https://github.com/user-attachments/assets/d7897180-c938-427d-a623-c4507dbb964e)
+
+	-Al darle al STOP:
+ 
+![image](https://github.com/user-attachments/assets/ceaae5fb-ff8e-485f-a4c4-197b066a4be9)
+
 <!--
 ### Criterios de evaluación
 
