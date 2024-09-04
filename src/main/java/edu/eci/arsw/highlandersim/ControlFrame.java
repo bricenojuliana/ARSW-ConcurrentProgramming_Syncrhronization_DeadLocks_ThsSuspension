@@ -20,6 +20,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import java.awt.Color;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JScrollBar;
 
 public class ControlFrame extends JFrame {
@@ -29,7 +30,7 @@ public class ControlFrame extends JFrame {
 
     private JPanel contentPane;
 
-    private List<Immortal> immortals;
+    private CopyOnWriteArrayList<Immortal> immortals;
 
     private JTextArea output;
     private JLabel statisticsLabel;
@@ -65,8 +66,13 @@ public class ControlFrame extends JFrame {
 
         JToolBar toolBar = new JToolBar();
         contentPane.add(toolBar, BorderLayout.NORTH);
-
-        final JButton btnStart = new JButton("Start");
+        JButton btnStop = new JButton("STOP");
+        JButton btnStart = new JButton("Start");
+        JButton btnResume = new JButton("Resume");
+        JButton btnPauseAndCheck = new JButton("Pause and check");
+        btnStop.setEnabled(false);
+        btnPauseAndCheck.setEnabled(false);
+        btnResume.setEnabled(false);
         btnStart.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 
@@ -78,38 +84,41 @@ public class ControlFrame extends JFrame {
                     }
                 }
                 btnStart.setEnabled(false);
-
+                btnPauseAndCheck.setEnabled(true);
+                btnResume.setEnabled(true);
+                btnStop.setEnabled(true);
             }
         });
         toolBar.add(btnStart);
 
-        JButton btnPauseAndCheck = new JButton("Pause and check");
+
         btnPauseAndCheck.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
-                /*
-				 * COMPLETAR
-                 */
                 Immortal.pauseImmortals(); // Pausar los hilos
-
+                //Para casos muy grandes como 10000 hilos, la orden de pausa llega a todos los hilos pero hay una diferencia minima de tiempo entre que
+                // vuelve a consultar el run y ve que tiene que detenerse por lo cual ejecuta un movimiento extra que puede afectar al invariante, esta espera de 100 milisegundos antes de comenzar a consultar es para
+                // darle tiempo a que todos los hilos se den cuenta que deben detenerse
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
                 int sum = 0;
                 for (Immortal im : immortals) {
                     sum += im.getHealth();
                 }
-
                 statisticsLabel.setText("<html>"+immortals.toString()+"<br>Health sum:"+ sum);
+                btnStop.setEnabled(false);
             }
         });
         toolBar.add(btnPauseAndCheck);
 
-        JButton btnResume = new JButton("Resume");
+
 
         btnResume.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                /**
-                 * IMPLEMENTAR
-                 */
                 Immortal.resumeImmortals();
+                btnStop.setEnabled(true);
             }
         });
 
@@ -123,7 +132,25 @@ public class ControlFrame extends JFrame {
         toolBar.add(numOfImmortals);
         numOfImmortals.setColumns(10);
 
-        JButton btnStop = new JButton("STOP");
+
+        btnStop.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                Immortal.setDead();
+
+                output.setText(""); // Borra el contenido del JTextArea
+                statisticsLabel.setText("Immortals total health:");
+                immortals.clear(); // Elimina todos los inmortales de la lista
+                Immortal.setAlive();
+                btnStop.setEnabled(false);
+                btnPauseAndCheck.setEnabled(false);
+                btnResume.setEnabled(false);
+                btnStart.setEnabled(true); // Reactivar el botón de start
+
+
+            }
+        });
+
         btnStop.setForeground(Color.RED);
         toolBar.add(btnStop);
 
@@ -140,14 +167,14 @@ public class ControlFrame extends JFrame {
 
     }
 
-    public List<Immortal> setupInmortals() {
+    public CopyOnWriteArrayList<Immortal> setupInmortals() {
 
         ImmortalUpdateReportCallback ucb=new TextAreaUpdateReportCallback(output,scrollPane);
 
         try {
             int ni = Integer.parseInt(numOfImmortals.getText());
 
-            List<Immortal> il = new LinkedList<Immortal>();
+            CopyOnWriteArrayList<Immortal> il = new CopyOnWriteArrayList<Immortal>();
 
             for (int i = 0; i < ni; i++) {
                 Immortal i1 = new Immortal("im" + i, il, DEFAULT_IMMORTAL_HEALTH, DEFAULT_DAMAGE_VALUE,ucb);
